@@ -1,3 +1,5 @@
-/Library/
+/Library/*
+/Temp/*
+/.vs/*
 *.sln
 *.csproj
