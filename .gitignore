@@ -1,5 +1,6 @@
 /Library/*
 /Temp/*
+/Version/*
 /.vs/*
 *.sln
 *.csproj
