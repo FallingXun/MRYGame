@@ -33,6 +33,7 @@ public class ConfigFileReader
 
     static JsonData LoadConfigFromWWW(string configFileName)
     {
+        float time = Time.realtimeSinceStartup;
         string configFilePath = System.IO.Path.Combine(configFileDir, configFileName + ".json");
         using (WWW www = new WWW(configFilePath))
         {
@@ -40,7 +41,14 @@ public class ConfigFileReader
             {
                 if (!string.IsNullOrEmpty(www.error))
                 {
-                    Debug.LogError("The config " + configFileName + " is load failed");
+                    Debug.LogError("The config " + configFileName +
+                        " is load failed,beacuse of " + www.error);
+                    return null;
+                }
+                if (Time.realtimeSinceStartup - time >= 4f)
+                {
+                    Debug.LogError("The config " + configFileName +
+                        " is load failed,because of overtime");
                     return null;
                 }
             }

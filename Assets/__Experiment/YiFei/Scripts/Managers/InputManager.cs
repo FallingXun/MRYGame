@@ -42,13 +42,17 @@ public class InputManager : Manager<InputManager>
     void Update()
     {
         float delta = Time.deltaTime;
-        if (!mIsLock && character != null && mCurrentInputState != null)
+        if (character != null && mCurrentInputState != null)
         {
-            mCurrentInputState.Move(delta);
-            mCurrentInputState.Rotate(delta);
-            mCurrentInputState.Skill();
-            mCurrentInputState.SwitchItem();
-            mCurrentInputState.UseItem();
+            if (!mIsLock)
+            {
+                mCurrentInputState.Move(delta);
+                mCurrentInputState.Rotate(delta);
+                mCurrentInputState.Skill();
+                mCurrentInputState.SwitchItem();
+                mCurrentInputState.UseItem();
+            }
+            // 聊天属于特殊操作
             mCurrentInputState.Chat();
         }
     }
@@ -112,12 +116,12 @@ public class InputManager : Manager<InputManager>
 
         public override void Rotate(float deltaTime)
         {
-            if (Input.GetKey(KeyCode.J))
+            if (Input.GetKey(KeyCode.L))
             {
                 character.transform.RotateAround(character.transform.position,
                     Vector3.back, character.spinSpeed * deltaTime);
             }
-            if (Input.GetKey(KeyCode.L))
+            if (Input.GetKey(KeyCode.J))
             {
                 character.transform.RotateAround(character.transform.position,
                     Vector3.forward, character.spinSpeed * deltaTime);
@@ -154,9 +158,12 @@ public class InputManager : Manager<InputManager>
 
         public override void Chat()
         {
-            if (Input.GetKeyDown(KeyCode.F))
+            if (Input.GetKeyDown(KeyCode.Space))
             {
-                Debug.Log("Chat with somebody");
+                if (DialogManager.Instance.IsInitStory())
+                {
+                    DialogManager.Instance.GotoNextSection();
+                }
             }
         }
     }

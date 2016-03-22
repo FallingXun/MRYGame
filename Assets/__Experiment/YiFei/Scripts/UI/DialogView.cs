@@ -24,11 +24,12 @@ public class DialogView : View<DialogView>
 
         // Hack
         mInstance = this;
+        gameObject.SetActive(false);
     }
 
-    void OnGotoNextStoryTextClick(GameObject go)
+    public void OnGotoNextStoryTextClick(GameObject go)
     {
-        if (mCurrentParagraphIndex >= mParagraphNum)
+        if (mCurrentParagraphIndex == mParagraphNum)
         {
             DialogManager.Instance.GotoNextSection();
         }

@@ -5,11 +5,13 @@ using LitJson;
 
 public class DialogManager : Manager<DialogManager>
 {
+    public System.Action onStoryFinish;
     public System.Action onSectionFinish;
 
     private JsonData mLevelStoryConfig;
     private JsonData mStoryConfig;
     private int mCurrentSection;
+    private bool mIsInitStory = false;
 
     public override void Init()
     {
@@ -27,17 +29,37 @@ public class DialogManager : Manager<DialogManager>
         Debug.Log("Release DialogManager");
     }
 
+
+    /// <summary>
+    /// 判断是否已经初始化对应的故事脚本
+    /// </summary>
+    public bool IsInitStory()
+    {
+        return mIsInitStory;
+    }
+
     public void InitStoryConfig(int levelId)
     {
         mStoryConfig = mLevelStoryConfig[levelId];
         mCurrentSection = 0;
+        mIsInitStory = true;
     }
 
     public void GotoNextSection()
     {
+        if (!mIsInitStory)
+            return;
+
         if (mCurrentSection >= mStoryConfig.Count)
         {
-            DialogView.Instance.Hide();
+            if (mCurrentSection == mStoryConfig.Count)
+            {
+                if (onStoryFinish != null)
+                    onStoryFinish();
+                DialogView.Instance.Hide();
+                ++mCurrentSection;
+                mIsInitStory = false;
+            }
             return;
         }
 
@@ -50,7 +72,7 @@ public class DialogManager : Manager<DialogManager>
             string iconName = (string) mStoryConfig[mCurrentSection]["icon"];
             string msg = (string) mStoryConfig[mCurrentSection]["msg"];
             DialogView.Instance.SetStoryDialog(iconName, msg);
-            mCurrentSection++;
+            ++mCurrentSection;
         }
         else
         {
