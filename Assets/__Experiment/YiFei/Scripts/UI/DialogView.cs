@@ -5,115 +5,118 @@ using System.Text;
 
 using UnityEngine.UI;
 
-public class DialogView : View<DialogView>
+namespace MRYGame
 {
-    private Image mHeadImage;
-    private Text mStoryText;
-
-    private List<string> mLines = new List<string>();
-    private int mParagraphNum;
-    private int mCurrentParagraphIndex;
-
-    protected override void InitData()
+    public class DialogView : View<DialogView>
     {
-        mHeadImage = transform.Find("HeadImage").GetComponent<Image>();
-        mStoryText = transform.Find("StoryText").GetComponent<Text>();
+        private Image headImage;
+        private Text storyText;
 
-        EventTriggerListener.Get(this.gameObject).onClick += OnGotoNextStoryTextClick;
-        EventTriggerListener.Get(transform.Find("Background").gameObject).onClick += OnGotoNextStoryTextClick;
+        private List<string> textLines = new List<string>();
+        private int paragraphNum;
+        private int currentParagraphIndex;
 
-        // Hack
-        mInstance = this;
-        gameObject.SetActive(false);
-    }
-
-    public void OnGotoNextStoryTextClick(GameObject go)
-    {
-        if (mCurrentParagraphIndex == mParagraphNum)
+        protected override void InitData()
         {
-            DialogManager.Instance.GotoNextSection();
+            headImage = transform.Find("HeadImage").GetComponent<Image>();
+            storyText = transform.Find("StoryText").GetComponent<Text>();
+
+            EventTriggerListener.Get(this.gameObject).onClick += OnGotoNextStoryTextClick;
+            EventTriggerListener.Get(transform.Find("Background").gameObject).onClick += OnGotoNextStoryTextClick;
+
+            // Hack
+            instance = this;
+            gameObject.SetActive(false);
         }
-        else
+
+        public void OnGotoNextStoryTextClick(GameObject go)
         {
+            if (currentParagraphIndex == paragraphNum)
+            {
+                DialogManager.Instance.GotoNextSection();
+            }
+            else
+            {
+                StringBuilder sb = new StringBuilder();
+                for (int i = currentParagraphIndex * 3;
+                    i < textLines.Count && i < currentParagraphIndex * 3 + 3; i++)
+                {
+                    sb.Append(textLines[i] + "\n");
+                }
+                SetStoryText(sb.ToString());
+                ++currentParagraphIndex;
+            }
+        }
+
+        public void SetStoryDialog(string iconName, string text)
+        {
+            currentParagraphIndex = 0;
+            textLines.Clear();
+
+            GetAllLines(text);
+            paragraphNum = Mathf.CeilToInt(textLines.Count / 3.0f);
+            if (paragraphNum <= 1)
+            {
+                SetRoleIcon(iconName);
+                SetStoryText(text);
+            }
+            else
+            {
+                SetRoleIcon(iconName);
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < 3; i++)
+                {
+                    sb.Append(textLines[i] + "\n");
+                }
+                SetStoryText(sb.ToString());
+            }
+            ++currentParagraphIndex;
+        }
+
+        /// <summary>
+        /// ·ÖÎö²¢ÇÐ¸î×Ö·û´®
+        /// </summary>
+        void GetAllLines(string text)
+        {
+            Rect rect = storyText.GetComponent<RectTransform>().rect;
+            float lineWidth = rect.width;
             StringBuilder sb = new StringBuilder();
-            for (int i = mCurrentParagraphIndex * 3;
-                i < mLines.Count && i < mCurrentParagraphIndex * 3 + 3; i++)
+
+            Font font = storyText.font;
+            int fontSize = storyText.fontSize;
+            font.RequestCharactersInTexture(text, fontSize, FontStyle.Normal);
+            CharacterInfo characterInfo;
+            for (int i = 0; i < text.Length; i++)
             {
-                sb.Append(mLines[i] + "\n");
+                font.GetCharacterInfo(text[i], out characterInfo, fontSize);
+                if (lineWidth - characterInfo.advance <= 0)
+                {
+                    sb.Append('\n');
+                    lineWidth = rect.width;
+                }
+                sb.Append(text[i]);
+                lineWidth -= characterInfo.advance;
             }
-            SetStoryText(sb.ToString());
-            ++mCurrentParagraphIndex;
+            textLines.AddRange(sb.ToString().Split('\n'));
         }
-    }
 
-    public void SetStoryDialog(string iconName, string text)
-    {
-        mCurrentParagraphIndex = 0;
-        mLines.Clear();
-
-        GetAllLines(text);
-        mParagraphNum = Mathf.CeilToInt(mLines.Count / 3.0f);
-        if (mParagraphNum <= 1)
+        void SetRoleIcon(string iconName)
         {
-            SetRoleIcon(iconName);
-            SetStoryText(text);
-        }
-        else
-        {
-            SetRoleIcon(iconName);
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < 3; i++)
+            Sprite sprite = Resources.Load<Sprite>("UI/HeadIcon/" + iconName);
+            if (sprite != null)
             {
-                sb.Append(mLines[i] + "\n");
+                headImage.sprite = sprite;
+                headImage.SetNativeSize();
             }
-            SetStoryText(sb.ToString());
-        }
-        ++mCurrentParagraphIndex;
-    }
-
-    /// <summary>
-    /// ·ÖÎö²¢ÇÐ¸î×Ö·û´®
-    /// </summary>
-    void GetAllLines(string text)
-    {
-        Rect rect = mStoryText.GetComponent<RectTransform>().rect;
-        float lineWidth = rect.width;
-        StringBuilder sb = new StringBuilder();
-
-        Font font = mStoryText.font;
-        int fontSize = mStoryText.fontSize;
-        font.RequestCharactersInTexture(text, fontSize, FontStyle.Normal);
-        CharacterInfo characterInfo;
-        for (int i = 0; i < text.Length; i++)
-        {
-            font.GetCharacterInfo(text[i], out characterInfo, fontSize);
-            if (lineWidth - characterInfo.advance <= 0)
+            else
             {
-                sb.Append('\n');
-                lineWidth = rect.width;
+                Debug.LogError("The resource of headIcon " + iconName + " load failed");
             }
-            sb.Append(text[i]);
-            lineWidth -= characterInfo.advance;
         }
-        mLines.AddRange(sb.ToString().Split('\n'));
-    }
 
-    void SetRoleIcon(string iconName)
-    {
-        Sprite sprite = Resources.Load<Sprite>("UI/HeadIcon/" + iconName);
-        if (sprite != null)
+        void SetStoryText(string text)
         {
-            mHeadImage.sprite = sprite;
-            mHeadImage.SetNativeSize();
+            storyText.text = text;
         }
-        else
-        {
-            Debug.LogError("The resource of headIcon " + iconName + " load failed");
-        }
-    }
-
-    void SetStoryText(string text)
-    {
-        mStoryText.text = text;
     }
 }

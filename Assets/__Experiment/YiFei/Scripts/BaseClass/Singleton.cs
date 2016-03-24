@@ -1,23 +1,26 @@
 using UnityEngine;
 using System.Collections;
 
-public abstract class Singleton<T> : MonoBehaviour where T : Singleton<T>
+namespace MRYGame
 {
-    protected static T mInstance;
-    static public T Instance
+    public abstract class Singleton<T> : MonoBehaviour where T : Singleton<T>
     {
-        get
+        protected static T instance;
+        static public T Instance
         {
-            if (mInstance == null)
+            get
             {
-                T[] t = GameObject.FindObjectsOfType<T>();
-                if (t.Length > 1)
+                if (instance == null)
                 {
-                    Debug.LogError("The Scene has multiple singleton,now choose first object");
+                    T[] t = GameObject.FindObjectsOfType<T>();
+                    if (t.Length > 1)
+                    {
+                        Debug.LogError("The Scene has multiple singleton,now choose first object");
+                    }
+                    instance = t[0];
                 }
-                mInstance = t[0];
+                return instance;
             }
-            return mInstance;
         }
     }
 }

@@ -3,80 +3,83 @@ using System.Collections;
 
 using LitJson;
 
-public class DialogManager : Manager<DialogManager>
+namespace MRYGame
 {
-    public System.Action onStoryFinish;
-    public System.Action onSectionFinish;
-
-    private JsonData mLevelStoryConfig;
-    private JsonData mStoryConfig;
-    private int mCurrentSection;
-    private bool mIsInitStory = false;
-
-    public override void Init()
+    public class DialogManager : Manager<DialogManager>
     {
-        Debug.Log("Initialize DialogManager");
+        public System.Action onStoryFinish;
+        public System.Action onSectionFinish;
 
-        // 读取关卡剧情脚本
-        if (mLevelStoryConfig == null)
+        private JsonData levelStoryConfig;
+        private JsonData storyConfig;
+        private int currentSection;
+        private bool isInitStory = false;
+
+        public override void Init()
         {
-            mLevelStoryConfig = ConfigFileReader.ReadConfig("StoryConfig");
-        }
-    }
+            Debug.Log("Initialize DialogManager");
 
-    public override void Release()
-    {
-        Debug.Log("Release DialogManager");
-    }
-
-
-    /// <summary>
-    /// 判断是否已经初始化对应的故事脚本
-    /// </summary>
-    public bool IsInitStory()
-    {
-        return mIsInitStory;
-    }
-
-    public void InitStoryConfig(int levelId)
-    {
-        mStoryConfig = mLevelStoryConfig[levelId];
-        mCurrentSection = 0;
-        mIsInitStory = true;
-    }
-
-    public void GotoNextSection()
-    {
-        if (!mIsInitStory)
-            return;
-
-        if (mCurrentSection >= mStoryConfig.Count)
-        {
-            if (mCurrentSection == mStoryConfig.Count)
+            // 读取关卡剧情脚本
+            if (levelStoryConfig == null)
             {
-                if (onStoryFinish != null)
-                    onStoryFinish();
-                DialogView.Instance.Hide();
-                ++mCurrentSection;
-                mIsInitStory = false;
+                levelStoryConfig = ConfigFileReader.ReadConfig("StoryConfig");
             }
-            return;
         }
 
-        if (mCurrentSection != 0 && onSectionFinish != null)
-            onSectionFinish();
-
-        if (mStoryConfig != null)
+        public override void Release()
         {
-            DialogView.Instance.Show();
-            string iconName = (string) mStoryConfig[mCurrentSection]["icon"];
-            string msg = (string) mStoryConfig[mCurrentSection]["msg"];
-            DialogView.Instance.SetStoryDialog(iconName, msg);
-            ++mCurrentSection;
+            Debug.Log("Release DialogManager");
         }
-        else
+
+
+        /// <summary>
+        /// 判断是否已经初始化对应的故事脚本
+        /// </summary>
+        public bool IsInitStory()
         {
-            Debug.LogError("The story config is load failed");
+            return isInitStory;
+        }
+
+        public void InitStoryConfig(int levelId)
+        {
+            storyConfig = levelStoryConfig[levelId];
+            currentSection = 0;
+            isInitStory = true;
+        }
+
+        public void GotoNextSection()
+        {
+            if (!isInitStory)
+                return;
+
+            if (currentSection >= storyConfig.Count)
+            {
+                if (currentSection == storyConfig.Count)
+                {
+                    if (onStoryFinish != null)
+                        onStoryFinish();
+                    DialogView.Instance.Hide();
+                    ++currentSection;
+                    isInitStory = false;
+                }
+                return;
+            }
+
+            if (currentSection != 0 && onSectionFinish != null)
+                onSectionFinish();
+
+            if (storyConfig != null)
+            {
+                DialogView.Instance.Show();
+                string iconName = (string) storyConfig[currentSection]["icon"];
+                string msg = (string) storyConfig[currentSection]["msg"];
+                DialogView.Instance.SetStoryDialog(iconName, msg);
+                ++currentSection;
+            }
+            else
+            {
+                Debug.LogError("The story config is load failed");
+            }
         }
     }
 }

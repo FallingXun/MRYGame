@@ -1,15 +1,18 @@
 using UnityEngine;
 using System.Collections;
 
-public class SoundManager : Manager<SoundManager>
+namespace MRYGame
 {
-    public override void Init()
+    public class SoundManager : Manager<SoundManager>
     {
-        Debug.Log("Initialize SoundManager");
-    }
+        public override void Init()
+        {
+            Debug.Log("Initialize SoundManager");
+        }
 
-    public override void Release()
-    {
-        Debug.Log("Release SoundManager");
+        public override void Release()
+        {
+            Debug.Log("Release SoundManager");
+        }
     }
 }

@@ -1,17 +1,20 @@
 using UnityEngine;
 using System.Collections;
 
-public class Wall : Unit
+namespace MRYGame
 {
-    void OnCollisionEnter2D(Collision2D collider)
+    public class Wall : Unit
     {
-        if (collider.gameObject.tag == "EnemySkill")
+        void OnCollisionEnter2D(Collision2D collider)
         {
-            if (--hp <= 0)
+            if (collider.gameObject.tag == "EnemySkill")
             {
-                Destroy(this.gameObject);
+                if (--hp <= 0)
+                {
+                    Destroy(this.gameObject);
+                }
+                Destroy(collider.gameObject);
             }
-            Destroy(collider.gameObject);
         }
     }
 }

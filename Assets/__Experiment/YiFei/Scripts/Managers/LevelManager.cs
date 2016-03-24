@@ -1,18 +1,21 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class LevelManager : Manager<LevelManager>
+namespace MRYGame
 {
-    public int levelId;
-    public int levelName;
-
-    public override void Init()
+    public class LevelManager : Manager<LevelManager>
     {
-        Debug.Log("Initialize LevelManager");
-    }
+        public int levelId;
+        public int levelName;
 
-    public override void Release()
-    {
-        Debug.Log("Release LevelManager");
+        public override void Init()
+        {
+            Debug.Log("Initialize LevelManager");
+        }
+
+        public override void Release()
+        {
+            Debug.Log("Release LevelManager");
+        }
     }
 }

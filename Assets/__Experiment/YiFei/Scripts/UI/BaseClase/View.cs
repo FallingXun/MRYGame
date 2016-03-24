@@ -1,24 +1,28 @@
 using UnityEngine;
 using System.Collections;
 
-public class View<T> : Singleton<T> where T : View<T>
+namespace MRYGame
 {
-    protected bool isFirstShow = true;
-
-    void Awake()
+    public class View<T> : Singleton<T> where T : View<T>
     {
-        InitData();
-    }
+        protected bool isShowed = true;
 
-    protected virtual void InitData() { }
-    public virtual void Show()
-    {
-        gameObject.SetActive(true);
-        isFirstShow = false;
-    }
+        void Awake()
+        {
+            InitData();
+        }
 
-    public virtual void Hide()
-    {
-        gameObject.SetActive(false);
+        protected virtual void InitData() { }
+
+        public virtual void Show()
+        {
+            gameObject.SetActive(true);
+            isShowed = false;
+        }
+
+        public virtual void Hide()
+        {
+            gameObject.SetActive(false);
+        }
     }
 }
